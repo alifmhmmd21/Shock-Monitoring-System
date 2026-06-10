@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IMU Dashboard v3 — ADXL345</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oxanium:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+
+  <header>
+    <div class="title-block">
+      <h1>IMU Dashboard <span class="v2">v3</span></h1>
+      <p>ADXL345 · Heltec LoRa 32 V2 · Periodic Stats + Shock Events · SQLite</p>
+    </div>
+    <div class="status-block">
+      <div class="dot" id="dot"></div>
+      <span id="status-text">CONNECTING...</span>
+    </div>
+  </header>
+
+  <!-- ── Summary counters ─────────────────────── -->
+  <div class="counters">
+    <div class="counter-card">
+      <div class="counter-label">Stat packets</div>
+      <div class="counter-val" id="stat-count">0</div>
+    </div>
+
+    <!-- Shock card — click to open breakdown popup -->
+    <div class="counter-card shock-card" title="Click for breakdown">
+      <div class="counter-label">Shock events</div>
+      <div class="counter-val" id="event-count">0</div>
+      <div class="click-hint">▾ click for breakdown</div>
+    </div>
+
+    <div class="counter-card">
+      <div class="counter-label">Last RSSI</div>
+      <div class="counter-val" id="last-rssi">--</div>
+    </div>
+    <div class="counter-card">
+      <div class="counter-label">Last SNR</div>
+      <div class="counter-val" id="last-snr">--</div>
+    </div>
+  </div>
+
+  <!-- ── Latest stats ─────────────────────────── -->
+  <h2 class="section-title">Latest orientation stats</h2>
+  <div class="grid-3">
+
+    <div class="card c-cyan">
+      <div class="card-label">Roll</div>
+      <div class="row"><span class="row-key">Min</span><span class="row-val" id="roll-min">---</span><span class="row-unit">deg</span></div>
+      <div class="row"><span class="row-key">Max</span><span class="row-val" id="roll-max">---</span><span class="row-unit">deg</span></div>
+      <div class="row"><span class="row-key">Avg</span><span class="row-val" id="roll-avg">---</span><span class="row-unit">deg</span></div>
+    </div>
+
+    <div class="card c-cyan">
+      <div class="card-label">Pitch</div>
+      <div class="row"><span class="row-key">Min</span><span class="row-val" id="pitch-min">---</span><span class="row-unit">deg</span></div>
+      <div class="row"><span class="row-key">Max</span><span class="row-val" id="pitch-max">---</span><span class="row-unit">deg</span></div>
+      <div class="row"><span class="row-key">Avg</span><span class="row-val" id="pitch-avg">---</span><span class="row-unit">deg</span></div>
+    </div>
+
+    <div class="card c-green">
+      <div class="card-label">Accel avg <span class="card-sublabel">(g)</span></div>
+      <div class="row"><span class="row-key">Ax</span><span class="row-val" id="ax-avg">---</span><span class="row-unit">g</span></div>
+      <div class="row"><span class="row-key">Ay</span><span class="row-val" id="ay-avg">---</span><span class="row-unit">g</span></div>
+      <div class="row"><span class="row-key">Az</span><span class="row-val" id="az-avg">---</span><span class="row-unit">g</span></div>
+    </div>
+
+  </div>
+
+  <!-- ── Shock event log ──────────────────────── -->
+  <h2 class="section-title">Shock event log <span class="badge-live">LIVE</span></h2>
+  <div class="event-table-wrap">
+    <table class="event-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Ax (g)</th>
+          <th>Ay (g)</th>
+          <th>Az (g)</th>
+          <th>Total (g)</th>
+          <th>Roll</th>
+          <th>Pitch</th>
+          <th>RSSI</th>
+        </tr>
+      </thead>
+      <tbody id="event-log">
+        <tr><td colspan="8" style="text-align:center;color:var(--text-dim)">No shock events yet</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Stats history ────────────────────────── -->
+  <h2 class="section-title">Stats history</h2>
+  <div class="event-table-wrap">
+    <table class="event-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Roll avg</th>
+          <th>Pitch avg</th>
+          <th>Az avg (g)</th>
+          <th>Roll range</th>
+          <th>Pitch range</th>
+          <th>Samples</th>
+          <th>SNR</th>
+        </tr>
+      </thead>
+      <tbody id="stat-log">
+        <tr><td colspan="8" style="text-align:center;color:var(--text-dim)">Waiting for first stat packet (every 10s)...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
